@@ -1,8 +1,0 @@
-# USB port
-port: /dev/serial/by-path/platform-tegra-xhci-usb-0:3.3:1.0-port0
-# Tf frame id
-frame_id: imu_bosch_link
-# Data reading frequency
-freqency: 5
-# Sensor operation mode --> modes could be found in sensor datasheet
-operation_mode: 0x08
