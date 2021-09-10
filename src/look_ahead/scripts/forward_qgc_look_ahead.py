@@ -27,8 +27,8 @@ from tf.transformations import quaternion_multiply
 
 SPACING = 0.8       # distance between lines 
 x_tolerance = 0.1  # [meter]
-yaw_tolerance = 180.0 # [Degree]
-yaw_tolerance_onstart = 30.0 # [Degree]
+yaw_tolerance = 60.0 # [Degree]
+YAW_TOLERANCE_ONSTART = 30.0 # [Degree]
 
 MAX_PIVOT_COUNT = 1
 
@@ -116,18 +116,6 @@ class look_ahead():
         self.q[2] = msg.pose.pose.orientation.z
         self.q[3] = msg.pose.pose.orientation.w
 
-    # truth position of simulator
-    #def truth_callback(self, msg):
-    #    for i, name in enumerate(msg.name):
-    #        if name == "sim_ajk":
-    #            self.x = msg.pose[i].position.x
-    #            self.y = msg.pose[i].position.y
-    #            # vehicle's quaternion data in /odom (odometry of ROS message)
-    #            self.q[0] = msg.pose[i].orientation.x
-    #            self.q[1] = msg.pose[i].orientation.y
-    #            self.q[2] = msg.pose[i].orientation.z
-    #            self.q[3] = msg.pose[i].orientation.w
-
     # load waypoint list
     def load_waypoint(self, msg):
         # UTM coordinate calculation
@@ -173,6 +161,7 @@ class look_ahead():
 
     def cmdvel_publisher(self, steering_ang, translation, pi):
         mav_linear_velocity = rospy.get_param("/mavlink_ajk/linear_velocity")
+        #rospy.loginfo(self.bool_start_point)
         if abs(steering_ang) > yaw_tolerance and self.bool_start_point == False:
             #print steering_ang
             if steering_ang >= 0:
@@ -181,18 +170,15 @@ class look_ahead():
             else:
                 self.cmdvel.linear.x = 0
                 self.cmdvel.angular.z = CMD_ANGULAR_RIGHT
-        elif abs(steering_ang) > yaw_tolerance_onstart and self.bool_start_point == True:
+        elif self.bool_start_point == True:
             if steering_ang >= 0:
                 self.cmdvel.linear.x = 0
                 self.cmdvel.angular.z = CMD_ANGULAR_LEFT                   
             else:
                 self.cmdvel.linear.x = 0
                 self.cmdvel.angular.z = CMD_ANGULAR_RIGHT
-            if self.pivot_count > MAX_PIVOT_COUNT:
-                self.pivot_count = 0
-                self.bool_start_point == False
-            if abs(steering_ang) < yaw_tolerance_onstart:
-                self.pivot_count = self.pivot_count + 1 
+            if abs(steering_ang) < YAW_TOLERANCE_ONSTART:
+                self.bool_start_point = False
         else:
             self.cmdvel.linear.x = mav_linear_velocity*translation
             self.cmdvel.angular.z = pi
@@ -228,11 +214,11 @@ class look_ahead():
         self.last_steering_ang = 0
         self.pivot_count = 0
         while not rospy.is_shutdown():
-            # if the iTOW has not increased, skip subsequent scripts 
+            """# if the iTOW has not increased, skip subsequent scripts 
             if self.iTOW - last_iTOW == 0:
                 rospy.loginfo("warning: The value of the GNSS receiver is not updated")
                 time.sleep(1)
-                continue
+                continue"""
 
             # save the last value of iTOW(GNSS time)
             last_iTOW = self.iTOW
@@ -377,6 +363,7 @@ class look_ahead():
 
             # when reaching the look-ahead distance, read the next waypoint.
             if (wp_x_tf - own_x_tf) < x_tolerance:
+                rospy.loginfo("Next waypoint")
                 pre_wp_x = self.waypoint_x[self.seq]
                 pre_wp_y = self.waypoint_y[self.seq]
                 self.seq = self.seq + 1
