@@ -514,19 +514,26 @@ int main(int argc, char **argv){
                 manual_z = mavmc.z;
                 manual_r = mavmc.r;
                 manual_buttons = mavmc.buttons;
-                //printf("target:%i, pitch:%i, roll:%i, Throttle:%i, Yaw:%i, buttons:%i\n", 
-                //       manual_target, manual_x, manual_y, manual_z, manual_r, manual_buttons);
+                printf("target:%i, pitch:%i, roll:%i, Throttle:%i, Yaw:%i, buttons:%i\n", 
+                       manual_target, manual_x, manual_y, manual_z, manual_r, manual_buttons);
 
                 /* publish ARM-DISARM ROS message */
-                if (JOY_THRESHOLD < std::abs(manual_z) - JOY_TH_NEUTRAL || 
-                    JOY_THRESHOLD < std::abs(manual_r) - JOY_YAW_NEUTRAL){
-                    joystick_rosmsg.stamp = ros::Time::now();
-                    joystick_rosmsg.roll = manual_y;
-                    joystick_rosmsg.pitch = manual_x;
-                    joystick_rosmsg.yaw = manual_r;
-                    joystick_rosmsg.throttle = manual_z;
-                    pub_joystick.publish(joystick_rosmsg);
-                }
+                //if (JOY_THRESHOLD < std::abs(manual_z) - JOY_TH_NEUTRAL || 
+                //    JOY_THRESHOLD < std::abs(manual_r) - JOY_YAW_NEUTRAL){
+                //    joystick_rosmsg.stamp = ros::Time::now();
+                //    joystick_rosmsg.roll = manual_y;
+                //    joystick_rosmsg.pitch = manual_x;
+                //    joystick_rosmsg.yaw = manual_r;
+                //    joystick_rosmsg.throttle = manual_z;
+                //    pub_joystick.publish(joystick_rosmsg);
+                //}
+                joystick_rosmsg.stamp = ros::Time::now();
+                joystick_rosmsg.roll = manual_y;
+                joystick_rosmsg.pitch = manual_x;
+                joystick_rosmsg.yaw = manual_r;
+                joystick_rosmsg.throttle = manual_z;
+                joystick_rosmsg.buttons = mavmc.buttons;
+                pub_joystick.publish(joystick_rosmsg);
                 break;
             }
 
