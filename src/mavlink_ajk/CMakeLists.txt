@@ -11,6 +11,8 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
   message_generation
   roscpp
+  look_ahead
+  ubx_analyzer
 )
 
 ## System dependencies are found with CMake's conventions
